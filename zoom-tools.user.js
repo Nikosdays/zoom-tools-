@@ -1623,7 +1623,7 @@
   // ══════════════════════════════════════════════
   // 5. МОНИТОРИНГ & ЛОГИ СОБЫТИЙ (AUDIT LOG)
   // ══════════════════════════════════════════════
-  let _monitorActive = true;
+  let _monitorActive = false;
   let _monitorUnsub = null;
   let _prevAttendeesMap = new Map();
   const _userStats = new Map(); // id => { name, micOnCount: 0, camOnCount: 0, handCount: 0 }
@@ -2331,18 +2331,18 @@
     w.id = 'zoom-tools-widget';
     w.innerHTML = `
     <div class="zt-header">
-      <div class="zt-title">⚡ Zoom Tools <span class="zt-version">v1.8.0</span></div>
+      <div class="zt-title">⚡ Zoom Tools <span class="zt-version">v1.8.0</span><span style="font-size:9px; color:rgba(255,255,255,0.4); margin-left:8px; font-weight:normal; letter-spacing:0.5px;">by Nikosdays (tg: @nikosdayz)</span></div>
       <div style="display:flex; gap:8px; align-items:center;">
         <span class="zt-close" id="zt-close" title="${T('Свернуть/Развернуть', 'Minimize/Restore')}">🗕</span>
       </div>
     </div>
     <div class="zt-navbar" id="zt-navbar">
       <button class="zt-nav-btn active" data-target="zt-rename-card">📝 Ник</button>
-      <button class="zt-nav-btn active" data-target="zt-stora-card">⬛ Завеса</button>
+      <button class="zt-nav-btn" data-target="zt-stora-card">⬛ Завеса</button>
       <button class="zt-nav-btn" data-target="zt-avatars-card">🎭 Аватары</button>
       <button class="zt-nav-btn" data-target="zt-emoji-card">😃 Эмодзи</button>
-      <button class="zt-nav-btn" data-target="zt-hand-card">✋ Рука</button>
-      <button class="zt-nav-btn active" data-target="zt-monitor-card">📡 Логи</button>
+      <button class="zt-nav-btn active" data-target="zt-hand-card">✋ Рука</button>
+      <button class="zt-nav-btn" data-target="zt-monitor-card">📡 Логи</button>
       <button class="zt-nav-btn" data-target="zt-inspector-card">🕵️ Инспектор</button>
     </div>
     <div class="zt-content" id="zt-content">
@@ -2395,7 +2395,7 @@
         </div>
 
         <!-- ── 2. ЗАВЕСА ДЕМОНСТРАЦИИ ── -->
-        <div class="zt-card active" id="zt-stora-card">
+        <div class="zt-card" id="zt-stora-card">
           <div class="zt-card-header">${T("⬛ Завеса (Экран)", "⬛ Screen Curtain")}</div>
             <div class="zt-row">
               <span style="font-size:11px;color:#8e8e99;white-space:nowrap">${T('Ник:', 'Nick:')}</span>
@@ -2485,7 +2485,7 @@
         </div>
 
         <!-- ── 4.1. СПАМ РУКОЙ (JUMPER) ── -->
-        <div class="zt-card" id="zt-hand-card">
+        <div class="zt-card active" id="zt-hand-card">
           <div class="zt-card-header">${T("✋ Рука (Jumper)", "✋ Hand Jumper")}</div>
 
             <div style="display:flex;justify-content:space-between;align-items:center">
@@ -2512,8 +2512,8 @@
         </div>
 
         <!-- ── 5. МОНИТОРИНГ & ЛОГИ СОБЫТИЙ ── -->
-        <div class="zt-card active" id="zt-monitor-card">
-          <div class="zt-card-header" style="justify-content:space-between; display:flex;"><span>${T("📡 Монитор логов", "📡 Logs Monitor")}</span><button class="zt-btn" id="zt-monitor-power" style="padding:1px 6px;font-size:9px;height:16px;background:#15803d;border-color:#16a34a;color:#fff">${T("ВКЛ", "ON")}</button></div>
+        <div class="zt-card" id="zt-monitor-card">
+          <div class="zt-card-header" style="justify-content:space-between; display:flex;"><span>${T("📡 Монитор логов", "📡 Logs Monitor")}</span><button class="zt-btn" id="zt-monitor-power" style="padding:1px 6px;font-size:9px;height:16px;background:#9f1239;border-color:#be123c;color:#fff">${T("ВЫКЛ", "OFF")}</button></div>
 
             <!-- Живое табло счетчиков -->
             <div id="zt-monitor-stats" style="background:#0a0a0d;border:1px solid #1f1f26;border-radius:6px;padding:6px 8px;display:flex;flex-direction:column;gap:3px">
