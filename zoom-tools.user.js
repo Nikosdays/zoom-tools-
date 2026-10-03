@@ -864,21 +864,30 @@
     console.log(`[ZT] Холст: [x:${Math.round(r.left)}, y:${Math.round(r.top)}, w:${Math.round(r.width)}, h:${Math.round(r.height)}]`);
     console.log(`[ZT] Бросок: (${x1}, ${y1}) ➔ (${x2}, ${y2}) | отступ: ${offset}px`);
 
-    const mk = (t, x, y) => new (iwin?.MouseEvent || MouseEvent)(t, {
-      bubbles: true, cancelable: true, view: iwin || window,
-      clientX: x, clientY: y, button: 0, buttons: t === 'mouseup' ? 0 : 1
+    const win = iwin || window;
+    const EvtCls = win.PointerEvent ? win.PointerEvent : win.MouseEvent;
+    const mk = (t, x, y) => new EvtCls(t, {
+      bubbles: true, cancelable: true, view: win,
+      clientX: x, clientY: y, button: 0, 
+      buttons: (t === 'pointerup' || t === 'mouseup') ? 0 : 1,
+      pointerId: 1, pointerType: 'mouse'
     });
 
-    canvas.dispatchEvent(mk('mousemove', x1, y1));
-    canvas.dispatchEvent(mk('mousedown', x1, y1));
+    const isPointer = !!win.PointerEvent;
+    const eDown = isPointer ? 'pointerdown' : 'mousedown';
+    const eMove = isPointer ? 'pointermove' : 'mousemove';
+    const eUp = isPointer ? 'pointerup' : 'mouseup';
+
+    canvas.dispatchEvent(mk(eMove, x1, y1));
+    canvas.dispatchEvent(mk(eDown, x1, y1));
+
     setTimeout(() => {
       for (let i = 1; i <= 20; i++) {
         const t = i / 20;
-        doc.dispatchEvent(mk('mousemove', x1 + (x2 - x1) * t, y1 + (y2 - y1) * t));
+        doc.dispatchEvent(mk(eMove, x1 + (x2 - x1) * t, y1 + (y2 - y1) * t));
       }
       setTimeout(() => {
-        doc.dispatchEvent(mk('mouseup', x2, y2));
-        console.log('[ZT] ✅ Бросок успешно завершен!');
+        doc.dispatchEvent(mk(eUp, x2, y2));        console.log('[ZT] ✅ Бросок успешно завершен!');
       }, 30);
     }, 30);
     return true;
@@ -997,7 +1006,7 @@
 
   function removeStora(iwin) {
     console.log('[ZT] Снятие завесы...');
-    stopDisco();
+    stopDisco(getReq(getIwin()), getStore(getIwin()));
     clearAllAnno();
     return true;
   }
@@ -1015,22 +1024,29 @@
       const y2 = r.bottom + 300 + offset;
 
       const win = iwin || window;
-      const mk = (t, x, y) => new (win.MouseEvent || window.MouseEvent)(t, {
+      const EvtCls = win.PointerEvent ? win.PointerEvent : win.MouseEvent;
+      const mk = (t, x, y) => new EvtCls(t, {
         bubbles: true, cancelable: true, view: win,
         clientX: x, clientY: y, button: 0,
-        buttons: t === 'mouseup' ? 0 : 1
+        buttons: (t === 'pointerup' || t === 'mouseup') ? 0 : 1,
+        pointerId: 1, pointerType: 'mouse'
       });
 
-      canvas.dispatchEvent(mk('mousemove', x1, y1));
-      canvas.dispatchEvent(mk('mousedown', x1, y1));
+      const isPointer = !!win.PointerEvent;
+      const eDown = isPointer ? 'pointerdown' : 'mousedown';
+      const eMove = isPointer ? 'pointermove' : 'mousemove';
+      const eUp = isPointer ? 'pointerup' : 'mouseup';
+
+      canvas.dispatchEvent(mk(eMove, x1, y1));
+      canvas.dispatchEvent(mk(eDown, x1, y1));
 
       setTimeout(() => {
         for (let i = 1; i <= 10; i++) {
           const t = i / 10;
-          doc.dispatchEvent(mk('mousemove', x1 + (x2 - x1) * t, y1 + (y2 - y1) * t));
+          doc.dispatchEvent(mk(eMove, x1 + (x2 - x1) * t, y1 + (y2 - y1) * t));
         }
         setTimeout(() => {
-          doc.dispatchEvent(mk('mouseup', x2, y2));
+          doc.dispatchEvent(mk(eUp, x2, y2));
           resolve(true);
         }, 25);
       }, 25);
@@ -1053,9 +1069,15 @@
     }
   }
 
-  async function startDisco(iwin) {
+  async function startDisco(tempNick, req, store, iwin) {
+    const me = getCurrentUser(store), orig = me?.displayName ?? '';
+    if (tempNick && tempNick !== orig) {
+      if (!_originalNickBeforeStora) _originalNickBeforeStora = orig;
+      doRename(tempNick, orig, req, store);
+    }
+
     if (_discoRunning) {
-      stopDisco();
+      stopDisco(getReq(getIwin()), getStore(getIwin()));
       return;
     }
     await ensureAnnoOpen();
@@ -1122,9 +1144,16 @@
     updateDiscoUI(false);
   }
 
-  async function stopDisco() {
+  async function stopDisco(req, store) {
     _discoRunning = false;
     updateDiscoUI(false);
+    if (_originalNickBeforeStora) {
+      const me = getCurrentUser(store);
+      if (me && me.displayName !== _originalNickBeforeStora) {
+        doRename(_originalNickBeforeStora, me.displayName, req, store);
+      }
+      _originalNickBeforeStora = null;
+    }
     showStatus(T('⏹ Дискотека остановлена, сброс цвета на чёрный...', '⏹ Disco stopped, resetting color to black...'), '#8e8e99');
     try {
       await selectPaletteDarkGrey();
@@ -2736,14 +2765,14 @@
 
     // 1. Завеса Мгновенно
     document.getElementById('zt-stora-fast-btn')?.addEventListener('click', () => {
-      const iwin = getIwin(), req = getReq(iwin), store = getStore(iwin), t = document.getElementById('zt-temp-nick').value;
+      const iwin = getIwin(), req = getReq(iwin), store = getStore(iwin), t = document.getElementById('zt-temp-nick').value.trim() || '\u3164';
       if (!store) { showStatus(T('❌ Войди в митинг', '❌ Join a meeting first'), '#ef4444'); return; }
       runStora(t, req, store, iwin, false, 0);
     });
 
     // 2. Завеса С настройкой
     document.getElementById('zt-stora-btn')?.addEventListener('click', () => {
-      const iwin = getIwin(), req = getReq(iwin), store = getStore(iwin), t = document.getElementById('zt-temp-nick').value;
+      const iwin = getIwin(), req = getReq(iwin), store = getStore(iwin), t = document.getElementById('zt-temp-nick').value.trim() || '\u3164';
       if (!store) { showStatus(T('❌ Войди в митинг', '❌ Join a meeting first'), '#ef4444'); return; }
       runStora(t, req, store, iwin, true, 0);
     });
@@ -2757,17 +2786,18 @@
 
     // 4. Корзина (Alt+D) — очистить все слои аннотации
     document.getElementById('zt-stora-clear-all')?.addEventListener('click', async () => {
-      stopDisco();
+      stopDisco(getReq(getIwin()), getStore(getIwin()));
       await clearAllAnno();
       showStatus(T('🗑 Все слои очищены!', '🗑 All layers cleared!'), '#10b981');
     });
 
     // 5. Дискотека (Стробоскоп)
     document.getElementById('zt-stora-disco-btn')?.addEventListener('click', () => {
-      startDisco(getIwin());
+      const tempNick = document.getElementById('zt-temp-nick')?.value.trim() || '\u3164';
+      startDisco(tempNick, getReq(getIwin()), getStore(getIwin()), getIwin());
     });
     document.getElementById('zt-stora-disco-stop')?.addEventListener('click', async () => {
-      stopDisco();
+      stopDisco(getReq(getIwin()), getStore(getIwin()));
       await clearAllAnno();
       showStatus(T('⏹ Дискотека остановлена, слои очищены!', '⏹ Disco stopped, layers cleared!'), '#8e8e99');
     });
@@ -3057,7 +3087,7 @@
     try { getIwin()?.addEventListener('keydown', handleKey); } catch {}
 
     window.__zt_cleanup = () => {
-      try { stopDisco(); } catch {}
+      try { stopDisco(getReq(getIwin()), getStore(getIwin())); } catch {}
       try { stopFlood(); } catch {}
       try { stopHandSpam(); } catch {}
       try { stopMimicRoulette(); } catch {}
