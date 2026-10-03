@@ -865,30 +865,20 @@
     console.log(`[ZT] Холст: [x:${Math.round(r.left)}, y:${Math.round(r.top)}, w:${Math.round(r.width)}, h:${Math.round(r.height)}]`);
     console.log(`[ZT] Бросок: (${x1}, ${y1}) ➔ (${x2}, ${y2}) | отступ: ${offset}px`);
 
-    const win = iwin || window;
-    const EvtCls = win.PointerEvent ? win.PointerEvent : win.MouseEvent;
-    const mk = (t, x, y) => new EvtCls(t, {
-      bubbles: true, cancelable: true, view: win,
-      clientX: x, clientY: y, button: 0, 
-      buttons: (t === 'pointerup' || t === 'mouseup') ? 0 : 1,
-      pointerId: 1, pointerType: 'mouse'
+    const mk = (t, x, y) => new (iwin?.MouseEvent || MouseEvent)(t, {
+      bubbles: true, cancelable: true, view: iwin || window,
+      clientX: x, clientY: y, button: 0, buttons: t === 'mouseup' ? 0 : 1
     });
 
-    const isPointer = !!win.PointerEvent;
-    const eDown = isPointer ? 'pointerdown' : 'mousedown';
-    const eMove = isPointer ? 'pointermove' : 'mousemove';
-    const eUp = isPointer ? 'pointerup' : 'mouseup';
-
-    canvas.dispatchEvent(mk(eMove, x1, y1));
-    canvas.dispatchEvent(mk(eDown, x1, y1));
-
+    canvas.dispatchEvent(mk('mousemove', x1, y1));
+    canvas.dispatchEvent(mk('mousedown', x1, y1));
     setTimeout(() => {
       for (let i = 1; i <= 20; i++) {
         const t = i / 20;
-        doc.dispatchEvent(mk(eMove, x1 + (x2 - x1) * t, y1 + (y2 - y1) * t));
+        doc.dispatchEvent(mk('mousemove', x1 + (x2 - x1) * t, y1 + (y2 - y1) * t));
       }
       setTimeout(() => {
-        doc.dispatchEvent(mk(eUp, x2, y2));        console.log('[ZT] ✅ Бросок успешно завершен!');
+        doc.dispatchEvent(mk('mouseup', x2, y2));        console.log('[ZT] ✅ Бросок успешно завершен!');
       }, 30);
     }, 30);
     return true;
@@ -1025,29 +1015,22 @@
       const y2 = r.bottom + 300 + offset;
 
       const win = iwin || window;
-      const EvtCls = win.PointerEvent ? win.PointerEvent : win.MouseEvent;
-      const mk = (t, x, y) => new EvtCls(t, {
+      const mk = (t, x, y) => new (win.MouseEvent || window.MouseEvent)(t, {
         bubbles: true, cancelable: true, view: win,
         clientX: x, clientY: y, button: 0,
-        buttons: (t === 'pointerup' || t === 'mouseup') ? 0 : 1,
-        pointerId: 1, pointerType: 'mouse'
+        buttons: t === 'mouseup' ? 0 : 1
       });
 
-      const isPointer = !!win.PointerEvent;
-      const eDown = isPointer ? 'pointerdown' : 'mousedown';
-      const eMove = isPointer ? 'pointermove' : 'mousemove';
-      const eUp = isPointer ? 'pointerup' : 'mouseup';
-
-      canvas.dispatchEvent(mk(eMove, x1, y1));
-      canvas.dispatchEvent(mk(eDown, x1, y1));
+      canvas.dispatchEvent(mk('mousemove', x1, y1));
+      canvas.dispatchEvent(mk('mousedown', x1, y1));
 
       setTimeout(() => {
         for (let i = 1; i <= 10; i++) {
           const t = i / 10;
-          doc.dispatchEvent(mk(eMove, x1 + (x2 - x1) * t, y1 + (y2 - y1) * t));
+          doc.dispatchEvent(mk('mousemove', x1 + (x2 - x1) * t, y1 + (y2 - y1) * t));
         }
         setTimeout(() => {
-          doc.dispatchEvent(mk(eUp, x2, y2));
+          doc.dispatchEvent(mk('mouseup', x2, y2));
           resolve(true);
         }, 25);
       }, 25);
