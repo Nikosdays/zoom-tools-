@@ -1,10 +1,12 @@
 // ==UserScript==
-// @name         Zoom Tools — Dark Edition (Rename + Завеса + Аватарки + Flood + Мониторинг + Рука)
+// @name         Zoom Tools (v1.8.0)
 // @namespace    zoom-tools
-// @version      1.0.0
-// @description  Темная тема, Завеса демонстрации, Дискотека, Рулетка ников, невидимый ник, прозрачная аватарка, WS спам, Мониторинг, Спам рукой, Инспектор митинга
+// @version      1.8.0
+// @description  Завеса, смена ника в обход блокировок, аватарки, спам реакций и рукой, инспектор конференции, монитор активности
+// @author       Nikosdays | tg: @nikosdayz
 // @match        https://app.zoom.us/*
 // @match        https://*.zoom.us/wc/*
+// @homepageURL  https://github.com/Nikosdays/zoom-tools-
 // @grant        none
 // ==/UserScript==
 

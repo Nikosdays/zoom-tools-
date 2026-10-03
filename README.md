@@ -119,3 +119,5 @@ If you want to add a feature, change the socket protocol, or customize the inter
 
 ## ⚠️ Disclaimer
 This project was created for **educational and research purposes** only — to study client-side web application internals and browser interface compatibility. The author bears no responsibility for any misuse. This project is not affiliated with Zoom Video Communications, Inc.
+
+If you use this script as a base or publish a modified version, please credit the original author: **Nikosdays** (GitHub: [Nikosdays/zoom-tools-](https://github.com/Nikosdays/zoom-tools-) | Telegram: [@nikosdayz](https://t.me/nikosdayz)).
