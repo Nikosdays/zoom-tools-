@@ -2,6 +2,8 @@ ACHIEVEMENTS.md
 test.js
 app.js
 zoom-meeting-app.js
+zoom-tools-console.js
+zoom-action-recorder.js
 arch.md
 *.log
 node_modules/
