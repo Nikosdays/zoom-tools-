@@ -3030,6 +3030,7 @@
       ox = evt.clientX - w.offsetLeft; oy = evt.clientY - w.offsetTop;
       const mv = e2 => {
         if (e2.touches) e2.preventDefault(); // Prevent scrolling on mobile
+        if (!e2.touches && e2.buttons === 0) { up(); return; } // Failsafe for sticky mouse drag
         const evt2 = e2.touches ? e2.touches[0] : e2;
         w.style.left = (evt2.clientX - ox) + 'px';
         w.style.top  = (evt2.clientY - oy) + 'px';
