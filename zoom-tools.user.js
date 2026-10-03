@@ -21,6 +21,7 @@
   // ЛОКАЛИЗАЦИЯ (RU / EN)
   // ══════════════════════════════════════════════
   let _ztLang = 'ru';
+  let _originalNickBeforeStora = null;
   try { _ztLang = sessionStorage.getItem('zt_lang') || 'ru'; } catch {}
   const T = (ru, en) => (_ztLang === 'en' ? en : ru);
 
