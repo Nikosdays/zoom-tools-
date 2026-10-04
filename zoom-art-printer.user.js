@@ -73,8 +73,10 @@
 
   async function setZoomColor(colorIdx) {
     if (lastColor === colorIdx) return;
-    const paletteBtn = queryAll('[class*="anno-toolbar__item--palette"] button, button[aria-label*="Формат" i], button[aria-label*="Format" i], button[aria-label*="Цвет" i]');
-    if (!paletteBtn) return;
+    // Ищем только ВИДИМУЮ кнопку палитры, чтобы не кликнуть по скрытому тулбару!
+    const paletteBtns = getVisible('[class*="anno-toolbar__item--palette"] button, [class*="anno-toolbar__item--palette"], button[aria-label*="Формат" i], button[aria-label*="Format" i], button[aria-label*="Цвет" i]');
+    const paletteBtn = paletteBtns[0];
+    if (!paletteBtn) { console.error("Palette button not found!"); return; }
     
     clickToolbarButton(paletteBtn);
     await new Promise(r => setTimeout(r, 150)); // Ждем анимацию меню
@@ -92,8 +94,9 @@
 
   async function setZoomTool(toolName) {
     if (lastTool === toolName) return;
-    const drawBtn = queryAll('[class*="anno-toolbar__item--draw"] button, button[aria-label*="Рисовать" i], button[aria-label*="Draw" i]');
-    if (!drawBtn) return;
+    const drawBtns = getVisible('[class*="anno-toolbar__item--draw"] button, [class*="anno-toolbar__item--draw"], button[aria-label*="Рисовать" i], button[aria-label*="Draw" i]');
+    const drawBtn = drawBtns[0];
+    if (!drawBtn) { console.error("Draw button not found!"); return; }
     
     clickToolbarButton(drawBtn);
     await new Promise(r => setTimeout(r, 150)); // Ждем анимацию меню
