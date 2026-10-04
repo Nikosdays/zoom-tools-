@@ -73,36 +73,35 @@
 
   async function setZoomColor(colorIdx) {
     if (lastColor === colorIdx) return;
-    // Ищем только ВИДИМУЮ кнопку палитры, чтобы не кликнуть по скрытому тулбару!
-    const paletteBtns = getVisible('[class*="anno-toolbar__item--palette"] button, [class*="anno-toolbar__item--palette"], button[aria-label*="Формат" i], button[aria-label*="Format" i], button[aria-label*="Цвет" i]');
+    const paletteBtns = getVisible('button[aria-label*="Цвет" i], button[aria-label*="Формат" i]');
     const paletteBtn = paletteBtns[0];
-    if (!paletteBtn) { console.error("Palette button not found!"); return; }
+    if (!paletteBtn) { console.error("Palette btn not found"); return; }
     
     clickToolbarButton(paletteBtn);
-    await new Promise(r => setTimeout(r, 150)); // Ждем анимацию меню
+    await new Promise(r => setTimeout(r, 200)); 
     
-    // Берем только ВИДИМЫЕ кнопки, иначе кликнем по скрытому меню
-    const colorBtns = getVisible('[role="dialog"] button, .popover button, [class*="color-picker"] button');
+    // Ищем любые кнопки или интерактивные элементы внутри выпадающих меню
+    const colorBtns = getVisible('.dropdown-menu button, .dropdown-menu [role="button"], .dropdown-menu a, .popover button, [role="dialog"] button, [class*="color-picker"] button, [class*="color-picker"] [role="button"], [class*="palette"] button');
+    
     if (colorBtns.length > colorIdx) {
       clickMenuReal(colorBtns[colorIdx], colorBtns[colorIdx].ownerDocument?.defaultView || window);
       lastColor = colorIdx;
-      await new Promise(r => setTimeout(r, 60));
+      await new Promise(r => setTimeout(r, 100));
     }
-    // Закрываем меню на всякий случай
+    // Сбрасываем фокус, чтобы меню закрылось
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
   }
 
   async function setZoomTool(toolName) {
     if (lastTool === toolName) return;
-    const drawBtns = getVisible('[class*="anno-toolbar__item--draw"] button, [class*="anno-toolbar__item--draw"], button[aria-label*="Рисовать" i], button[aria-label*="Draw" i]');
+    const drawBtns = getVisible('button[aria-label="Рисовать"], button[aria-label*="Draw" i]');
     const drawBtn = drawBtns[0];
-    if (!drawBtn) { console.error("Draw button not found!"); return; }
+    if (!drawBtn) { console.error("Draw btn not found"); return; }
     
     clickToolbarButton(drawBtn);
-    await new Promise(r => setTimeout(r, 150)); // Ждем анимацию меню
+    await new Promise(r => setTimeout(r, 200)); 
     
-    // Берем только ВИДИМЫЕ кнопки
-    const menuBtns = getVisible('[role="menu"] button, .popover button, .dropdown-menu button');
+    const menuBtns = getVisible('.dropdown-menu button, .dropdown-menu [role="button"], .dropdown-menu [role="menuitem"], .popover button, [role="menu"] button, [role="menu"] [role="menuitem"]');
     let target = null;
     
     for (let b of menuBtns) {
@@ -121,7 +120,7 @@
     if (target) {
       clickMenuReal(target, target.ownerDocument?.defaultView || window);
       lastTool = toolName;
-      await new Promise(r => setTimeout(r, 60));
+      await new Promise(r => setTimeout(r, 100));
     } else {
       clickToolbarButton(drawBtn);
     }
