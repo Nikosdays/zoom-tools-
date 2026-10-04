@@ -67,24 +67,27 @@
   let lastTool = null;
   let lastColor = null;
 
+  function getVisible(selector) {
+    return queryAllList(selector).filter(b => b.offsetWidth > 0 && b.offsetHeight > 0);
+  }
+
   async function setZoomColor(colorIdx) {
     if (lastColor === colorIdx) return;
-    // В русской версии Zoom кнопка палитры называется "Формат"
     const paletteBtn = queryAll('[class*="anno-toolbar__item--palette"] button, button[aria-label*="Формат" i], button[aria-label*="Format" i], button[aria-label*="Цвет" i]');
-    if (!paletteBtn) {
-      console.warn("Не найдена кнопка палитры (Формат)!");
-      return;
-    }
+    if (!paletteBtn) return;
     
     clickToolbarButton(paletteBtn);
-    await new Promise(r => setTimeout(r, 100)); // Ждем анимацию меню
+    await new Promise(r => setTimeout(r, 150)); // Ждем анимацию меню
     
-    const colorBtns = queryAllList('[role="dialog"] button, .popover button, [class*="color-picker"] button');
+    // Берем только ВИДИМЫЕ кнопки, иначе кликнем по скрытому меню
+    const colorBtns = getVisible('[role="dialog"] button, .popover button, [class*="color-picker"] button');
     if (colorBtns.length > colorIdx) {
       clickMenuReal(colorBtns[colorIdx], colorBtns[colorIdx].ownerDocument?.defaultView || window);
       lastColor = colorIdx;
       await new Promise(r => setTimeout(r, 60));
     }
+    // Закрываем меню на всякий случай
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
   }
 
   async function setZoomTool(toolName) {
@@ -93,9 +96,10 @@
     if (!drawBtn) return;
     
     clickToolbarButton(drawBtn);
-    await new Promise(r => setTimeout(r, 100)); // Ждем анимацию меню
+    await new Promise(r => setTimeout(r, 150)); // Ждем анимацию меню
     
-    const menuBtns = queryAllList('[role="menu"] button, .popover button, .dropdown-menu button');
+    // Берем только ВИДИМЫЕ кнопки
+    const menuBtns = getVisible('[role="menu"] button, .popover button, .dropdown-menu button');
     let target = null;
     
     for (let b of menuBtns) {
@@ -116,9 +120,9 @@
       lastTool = toolName;
       await new Promise(r => setTimeout(r, 60));
     } else {
-      // Кликаем обратно, чтобы закрыть меню, если не нашли
       clickToolbarButton(drawBtn);
     }
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
   }
 
   // ─── ДВИЖОК ПРИНТЕРА (PLAY) ───
