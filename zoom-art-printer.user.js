@@ -81,10 +81,19 @@
     await new Promise(r => setTimeout(r, 200)); 
     
     // Ищем любые кнопки или интерактивные элементы внутри выпадающих меню
-    const colorBtns = getVisible('.dropdown-menu button, .dropdown-menu [role="button"], .dropdown-menu a, .popover button, [role="dialog"] button, [class*="color-picker"] button, [class*="color-picker"] [role="button"], [class*="palette"] button');
+    const allBtns = getVisible('.dropdown-menu button, .dropdown-menu [role="button"], .dropdown-menu a, .popover button, [role="dialog"] button, [class*="color-picker"] button, [class*="color-picker"] [role="button"], [class*="palette"] button');
     
-    if (colorBtns.length > colorIdx) {
-      clickMenuReal(colorBtns[colorIdx], colorBtns[colorIdx].ownerDocument?.defaultView || window);
+    // Фильтруем только те кнопки, у которых есть цвет (чтобы отсеять кнопки толщины линий!)
+    const colorBtns = allBtns.filter(b => {
+      const html = b.innerHTML || '';
+      const bg = b.style.backgroundColor || '';
+      return bg.includes('rgb') || html.includes('rgb') || html.includes('background') || b.className.includes('color');
+    });
+
+    const targetBtns = colorBtns.length > 0 ? colorBtns : allBtns; // фоллбэк
+
+    if (targetBtns.length > colorIdx) {
+      clickMenuReal(targetBtns[colorIdx], targetBtns[colorIdx].ownerDocument?.defaultView || window);
       lastColor = colorIdx;
       await new Promise(r => setTimeout(r, 100));
     }
@@ -158,6 +167,15 @@
     let strokes = [];
     try { strokes = JSON.parse(artDataStr); } catch { alert("❌ Ошибка парсинга кода рисунка!"); return; }
     if (!Array.isArray(strokes) || !strokes.length) { alert("⚠ Код пуст."); return; }
+
+    // ОПТИМИЗАЦИЯ СКОРОСТИ: Группируем штрихи по инструменту и цвету!
+    // Так принтеру не придется открывать меню перед каждой линией.
+    strokes.sort((a, b) => {
+      const toolA = a.tool || '';
+      const toolB = b.tool || '';
+      if (toolA !== toolB) return toolA.localeCompare(toolB);
+      return (a.color || 0) - (b.color || 0);
+    });
 
     const stat = document.getElementById('zap-status');
     const r = canvas.getBoundingClientRect();
