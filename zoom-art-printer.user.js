@@ -282,6 +282,7 @@
       toolsUI.style.display = 'flex';
 
       recordingCanvas = document.createElement('canvas');
+      recordingCanvas.id = 'zap-recording-canvas';
       recordingCanvas.style.cssText = 'position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:999998; cursor:crosshair; background:rgba(0,0,0,0.15);';
       recordingCanvas.width = window.innerWidth;
       recordingCanvas.height = window.innerHeight;
@@ -318,7 +319,12 @@
 
   // ─── ИНТЕРФЕЙС ───
   function buildArtWidget() {
-    if (document.getElementById('zoom-art-printer-widget')) return;
+    // Удаляем старый виджет, чтобы скрипт можно было обновлять "на лету" в консоли
+    const oldWidget = document.getElementById('zoom-art-printer-widget');
+    if (oldWidget) oldWidget.remove();
+    const oldCanvas = document.getElementById('zap-recording-canvas');
+    if (oldCanvas) oldCanvas.remove();
+
     const w = document.createElement('div');
     w.id = 'zoom-art-printer-widget';
     w.style.cssText = `
