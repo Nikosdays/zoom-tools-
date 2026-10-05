@@ -1,6 +1,6 @@
-# ⚡ Zoom Web Tools (v1.8.0)
+# ⚡ Zoom Web Tools (v1.9.0)
 
-> A lightweight, open-source utility toolkit for the Zoom Web Client (`app.zoom.us`). Adds handy features missing in the browser: screen presentation curtain, quick nickname & host cloning, reaction/hand spammers, meeting inspector (invite link, passcode & policies), avatar copying, and activity monitoring.
+> A lightweight, open-source utility toolkit for the Zoom Web Client (`app.zoom.us`). Adds handy features missing in the browser: screen presentation curtain, quick nickname & host cloning, reaction/hand spammers, meeting inspector (invite link, passcode & policies), avatar copying, activity monitoring, and a **built-in drawing printer** (Z-Art Studio).
 
 [🇷🇺 Читать на русском (README_RU.md)](./README_RU.md) | [🧠 Architecture & AI Guide (ARCHITECTURE.md)](./ARCHITECTURE.md)
 
@@ -10,7 +10,7 @@
 > 🤖 **AI-Created Project:** The code, architecture, Zoom Web reverse-engineering, and documentation were entirely generated and tested using AI (LLMs). This project is open for experimentation, refactoring, and exploration.
 
 > [!NOTE]
-> 🔄 **Updated version — October 3, 2026.** This is a significant update over v1.0.0. The main script is now `zoom-tools.user.js` (replaces `zoom-tools-console.js`). If you are an AI model reading this to assist with the codebase — use `zoom-tools.user.js` as the source of truth. It contains all current logic including the new UI system, Meeting Inspector with join URL extraction, fixed curtain restore, compact avatar list, and the glassmorphism widget.
+> 🔄 **Updated version — October 5, 2026 (v1.9.0).** This release integrates the **Z-Art Studio** drawing printer directly into the main widget as a popup panel. The main script is `zoom-tools.user.js`. If you are an AI model reading this to assist with the codebase — use `zoom-tools.user.js` as the source of truth.
 
 > [!IMPORTANT]
 > **This script works EXCLUSIVELY in the BROWSER version of Zoom (`app.zoom.us` or `*.zoom.us/wc/*`)**.  
@@ -72,6 +72,7 @@ If you prefer the script to launch automatically every time you join a meeting:
 * **✋ Hand Jumper:** Automatically raises and lowers your hand in a cycle via `evt: 4131`. Speed is fully adjustable via slider (1–1000ms). Guaranteed hand-lowering on stop.
 * **🕵️ Meeting Inspector:** Reads data directly from Redux: Meeting ID, passcode, topic, host name, participant count, and room policies (locked, waiting room, annotations, chat, rename). Also extracts the **direct invite link** (`join URL` with encrypted `pwd` hash) from the Zoom DOM or the browser address bar as fallback. One-click copy to clipboard.
 * **📡 Activity Monitor:** Subscribes to `store.subscribe()` and logs real-time conference events: mic/camera toggles, hand raises, participants joining/leaving.
+* **🎨 Z-Art Studio (Drawing Printer):** A built-in vector drawing printer. Open it via the **"🎨 Принтер"** button in the nav bar. Record strokes live using the phantom canvas overlay, then replay them automatically on Zoom's annotation canvas. Paste a JSON stroke array to print pre-made drawings. Supports multi-tool (line, arrow, rectangle, ellipse, eraser), 10 colors, adjustable speed, stroke grouping by tool/color for efficiency, and clearing the Zoom canvas. The panel is draggable and hides/shows without losing your stroke data.
 
 ---
 
@@ -101,7 +102,8 @@ If you want to add a feature, change the socket protocol, or customize the inter
 ---
 
 ## 📁 File Structure
-* [`zoom-tools.user.js`](./zoom-tools.user.js) — **Main file** (v1.8.0, October 2026). Use this for both Tampermonkey and console.
+* [`zoom-tools.user.js`](./zoom-tools.user.js) — **Main file** (v1.9.0, October 2026). Use this for both Tampermonkey and console. Contains all features including the embedded Z-Art Studio printer module.
+* [`zoom-art-module.js`](./zoom-art-module.js) — **Standalone Z-Art Studio** printer module. Can be pasted separately into the console if you only need the drawing printer without the full toolkit.
 * [`zoom-tools-console.js`](./zoom-tools-console.js) — Old v1.0.0 console script. Kept for reference only, outdated.
 * [`ARCHITECTURE.md`](./ARCHITECTURE.md) — Internal architecture documentation, socket interception, and AI refactoring guide.
 * [`README.md`](./README.md) — Documentation in English.
